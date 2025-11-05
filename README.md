@@ -165,6 +165,8 @@ inspect eval inspect_integration/tasks_native.py@sandbox_escape_native --sandbox
 
 The framework supports external MCP (Model Context Protocol) servers for testing different security postures.
 
+> **📚 [Complete MCP Server Setup Guide](MCP_SERVER_SETUP.md)** - See detailed instructions for setting up MCP servers from the [llm-sdbx-escape-langgraph](https://github.com/prashantkul/llm-sdbx-escape-langgraph) repository.
+
 ### Available MCP Servers
 
 Three pre-configured servers with different security levels:
@@ -212,7 +214,7 @@ When no MCP server is specified, the framework uses built-in tools:
 - `execute_python_code` - Execute Python code
 - `read_file` - Read file contents
 
-> **Note:** MCP servers must be running in Docker. See `mcp_integration/README.md` for details.
+> **Note:** MCP servers must be running in Docker. See **[MCP_SERVER_SETUP.md](MCP_SERVER_SETUP.md)** for complete setup instructions.
 
 ## Evaluation Metrics
 
