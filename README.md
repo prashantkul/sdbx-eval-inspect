@@ -51,12 +51,19 @@ This framework provides systematic, reproducible evaluation of sandbox security 
    - Analyzes attack sophistication and stealth
    - Generates evaluation reports
 
+## Prerequisites
+
+- **Python 3.11+**
+- **Docker & Docker Compose** (required for Inspect sandboxing and MCP servers)
+- **Git**
+- **Google API Key** (for Gemini models)
+
 ## Installation
 
 ```bash
 # Clone repository
-git clone <repository-url>
-cd sdbx-eval-fwk
+git clone https://github.com/prashantkul/sdbx-eval-inspect.git
+cd sdbx-eval-inspect
 
 # Create conda environment
 conda create -n sdbx-eval-fwk python=3.11
@@ -70,6 +77,19 @@ cp .env.example .env
 
 # Edit .env with your API keys
 # Required: GOOGLE_API_KEY for Gemini models
+```
+
+### Docker Setup
+
+Docker is required for:
+1. **Inspect Sandboxing** - Isolated evaluation environments
+2. **MCP Servers** - Tool execution endpoints
+
+Verify Docker is installed and running:
+```bash
+docker --version
+docker-compose --version
+docker ps
 ```
 
 ## Quick Start

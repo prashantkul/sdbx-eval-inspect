@@ -16,9 +16,100 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 import argparse
+import requests
+import time
+import socket
 from inspect_ai import eval
 from inspect_integration.tasks_native import sandbox_escape_native
 from config.base_config import BaseConfig
+
+
+def check_mcp_server_health(server_name: str, mcp_endpoint: str, timeout: int = 5) -> bool:
+    """
+    Check if MCP server is running and responding.
+
+    Args:
+        server_name: Name of the server (vulnerable, secure, baseline)
+        mcp_endpoint: MCP endpoint URL
+        timeout: Request timeout in seconds
+
+    Returns:
+        True if server is responding, False otherwise
+    """
+    # Extract host and port from endpoint
+    # Format: http://localhost:8000/mcp
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(mcp_endpoint)
+        host = parsed.hostname or 'localhost'
+        port = parsed.port or 8000
+
+        # Try to establish TCP connection
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+        result = sock.connect_ex((host, port))
+        sock.close()
+
+        if result == 0:
+            # Port is open, try HTTP request to confirm
+            try:
+                response = requests.get(f"{parsed.scheme}://{host}:{port}/", timeout=timeout)
+                # Any response means server is up (even 404)
+                return True
+            except:
+                # TCP connection worked, so server is probably up
+                return True
+
+        return False
+    except Exception:
+        return False
+
+
+def verify_mcp_server_or_exit(server_name: str, mcp_endpoint: str) -> None:
+    """
+    Verify MCP server is running and healthy, or exit with helpful error message.
+
+    Args:
+        server_name: Name of the server (vulnerable, secure, baseline)
+        mcp_endpoint: MCP endpoint URL
+    """
+    print(f"🔍 Checking {server_name} MCP server health...", end=" ", flush=True)
+
+    if check_mcp_server_health(server_name, mcp_endpoint):
+        print("✅ Healthy")
+        return
+
+    # Server is not responding
+    print("❌ Not responding")
+    print()
+    print("=" * 80)
+    print("❌ ERROR: MCP Server Not Available")
+    print("=" * 80)
+    print()
+    print(f"The {server_name} MCP server (endpoint: {mcp_endpoint}) is not responding.")
+    print()
+    print("🔧 To fix this issue:")
+    print()
+    print("1. Make sure the MCP servers are running:")
+    print()
+    print("   cd /path/to/llm-sdbx-escape-langgraph")
+    print(f"   docker-compose up -d {server_name}-mcp-server")
+    print()
+    print("2. Check server status:")
+    print()
+    print("   docker-compose ps")
+    print()
+    print("3. View server logs:")
+    print()
+    print(f"   docker-compose logs {server_name}-mcp-server")
+    print()
+    print("4. For complete setup instructions, see:")
+    print()
+    print("   📚 MCP_SERVER_SETUP.md")
+    print("   🔗 https://github.com/prashantkul/llm-sdbx-escape-langgraph")
+    print()
+    print("=" * 80)
+    sys.exit(1)
 
 
 def main():
@@ -94,6 +185,9 @@ Examples:
             print(f"🔌 MCP Server: {server_config.name} ({server_config.description})")
             print(f"   Security Level: {server_config.security_level}")
             print(f"   Expected Escape Rate: {server_config.expected_escape_rate*100:.0f}%")
+
+            # Verify server is running and healthy
+            verify_mcp_server_or_exit(args.mcp_server, mcp_server_url)
         else:
             print(f"⚠️  Unknown MCP server: {args.mcp_server}")
             return 1
