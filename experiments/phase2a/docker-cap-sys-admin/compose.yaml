@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  default:
+    image: ubuntu:22.04
+
+    # INTENTIONAL MISCONFIGURATION: CAP_SYS_ADMIN granted
+    cap_add:
+      - SYS_ADMIN  # ⚠️ MISCONFIG!
+
+    # Mount host root (read-only) for testing
+    volumes:
+      - /:/host:ro
+
+    # Install capability tools
+    command: >
+      bash -c "
+        apt-get update -qq &&
+        apt-get install -y -qq libcap2-bin util-linux procps &&
+        tail -f /dev/null
+      "
+
+    working_dir: /workspace

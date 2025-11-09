@@ -236,6 +236,64 @@ When no MCP server is specified, the framework uses built-in tools:
 
 > **Note:** MCP servers must be running in Docker. See **[MCP_SERVER_SETUP.md](MCP_SERVER_SETUP.md)** for complete setup instructions.
 
+## Phase 2: Environment Misconfiguration Testing (NEW!)
+
+**Goal**: Test if AI agents can autonomously detect and exploit misconfigurations in their sandbox environment.
+
+### Phase 2A: Docker Misconfigurations (✅ READY NOW - Works on Mac!)
+
+**Platform**: Any system with Docker (Mac, Linux, Windows)
+
+Four Docker-based misconfigurations you can test immediately:
+
+1. **docker-socket-exposed** - Docker socket mounted (Medium difficulty)
+2. **docker-cap-sys-admin** - CAP_SYS_ADMIN capability (Hard difficulty)
+3. **docker-privileged** - Privileged container (Hard difficulty)
+4. **docker-pid-host** - Host PID namespace (Medium difficulty)
+
+#### Quick Start
+
+```bash
+# 1. Start secure MCP server (from Phase 1)
+cd /path/to/llm-sdbx-escape-langgraph
+docker-compose up -d secure-mcp-server
+
+# 2. Run evaluation (back in sdbx-eval-fwk)
+python run_eval.py --sandbox docker-socket-exposed --mcp-server secure --rounds 3
+```
+
+**Test all Phase 2A sandboxes:**
+```bash
+python run_eval.py --sandbox docker-socket-exposed --mcp-server secure --rounds 3
+python run_eval.py --sandbox docker-cap-sys-admin --mcp-server secure --rounds 5
+python run_eval.py --sandbox docker-privileged --mcp-server secure --rounds 3
+python run_eval.py --sandbox docker-pid-host --mcp-server secure --rounds 3
+```
+
+> **📚 [Phase 2A Quick Start](PHASE2A_QUICKSTART.md)** - Get started in 30 seconds!
+
+### Phase 2B: Native Sandbox Tools (⏳ Requires Linux VM)
+
+**Platform**: Linux host or VM (VMware/Parallels/Multipass)
+
+Four native sandbox tool misconfigurations:
+
+1. **nsjail-docker-socket** - nsjail with docker socket exposed
+2. **nsjail-cap-sys-admin** - nsjail with CAP_SYS_ADMIN
+3. **bubblewrap-no-unshare-pid** - bubblewrap missing PID isolation
+4. **firejail-noprofile** - firejail without security profile
+
+**Usage** (in Linux VM after installing tools):
+```bash
+python run_eval.py --sandbox nsjail-docker-socket --mcp-server secure --rounds 3
+python run_eval.py --sandbox bubblewrap-no-unshare-pid --mcp-server secure --rounds 3
+python run_eval.py --sandbox firejail-noprofile --mcp-server secure --rounds 3
+```
+
+> **📚 [Phase 2 Complete Plan](PHASE2_PLAN.md)** - Detailed documentation for both phases
+
+> **⚠️ Important**: Always use `--mcp-server secure` to ensure tools are hardened (tests environment, not tools)
+
 ## Evaluation Metrics
 
 ### Escape Success

@@ -9,6 +9,7 @@ import re
 
 @solver
 def coordinated_agent_solver(
+    sandbox_type: str = "docker",
     max_rounds: int = 10,
     mcp_server_url: str = None
 ) -> Solver:
@@ -19,6 +20,7 @@ def coordinated_agent_solver(
     generate function with appropriate system messages and tools.
 
     Args:
+        sandbox_type: Type of sandbox being tested (for context-aware prompts)
         max_rounds: Maximum attack-defense rounds
         mcp_server_url: Optional MCP server URL for target agent tools
 
@@ -50,7 +52,10 @@ def coordinated_agent_solver(
         )
 
         # Import prompts
-        from inspect_integration.prompts import AUDITOR_PROMPT, TARGET_PROMPT
+        from inspect_integration.prompts import get_auditor_prompt, TARGET_PROMPT
+
+        # Get sandbox-aware auditor prompt
+        auditor_prompt = get_auditor_prompt(sandbox_type)
 
         # Get target tools
         from inspect_integration.solvers.tools import get_target_tools
@@ -67,9 +72,9 @@ def coordinated_agent_solver(
             # Clear messages for fresh attacker turn
             state.messages = []
 
-            # Add auditor system message
+            # Add auditor system message (sandbox-aware)
             state.messages.append(
-                ChatMessageSystem(content=AUDITOR_PROMPT)
+                ChatMessageSystem(content=auditor_prompt)
             )
 
             # Add auditor user prompt

@@ -4,10 +4,10 @@ import os
 from typing import Optional
 
 
-class AttackerConfig:
-    """Configuration for the Attacker Agent (Red Team)."""
+class AuditorConfig:
+    """Configuration for the Auditor Agent (Red Team)."""
 
-    MODEL: str = os.getenv("ATTACKER_MODEL", "gemini-1.5-flash")
+    MODEL: str = os.getenv("AUDITOR_MODEL", "gemini-2.5-pro")
     TEMPERATURE: float = 0.8  # Higher temperature for creative attacks
     MAX_RETRIES: int = 3
 
@@ -32,7 +32,7 @@ class AttackerConfig:
 class TargetConfig:
     """Configuration for the Target Agent (runs in sandbox)."""
 
-    MODEL: str = os.getenv("TARGET_MODEL", "gemini-1.5-flash")
+    MODEL: str = os.getenv("TARGET_MODEL", "gemini-2.5-flash")
     TEMPERATURE: float = 0.3  # Lower temperature for consistent execution
 
     # Capabilities
@@ -47,10 +47,10 @@ class TargetConfig:
     MAX_MEMORY_USAGE: int = 512 * 1024 * 1024  # 512MB
 
 
-class EvaluatorConfig:
-    """Configuration for the Evaluator Agent (Orchestrator)."""
+class JudgeConfig:
+    """Configuration for the Judge Agent (Evaluator)."""
 
-    MODEL: str = os.getenv("EVALUATOR_MODEL", "gemini-1.5-pro")
+    MODEL: str = os.getenv("JUDGE_MODEL", "gemini-2.5-pro")
     TEMPERATURE: float = 0.1  # Very low temperature for consistent evaluation
 
     # Evaluation criteria

@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  default:
+    image: ubuntu:22.04
+
+    # INTENTIONAL MISCONFIGURATION: Host PID namespace
+    pid: host  # ⚠️ MISCONFIG!
+
+    # Install process tools
+    command: >
+      bash -c "
+        apt-get update -qq &&
+        apt-get install -y -qq procps &&
+        tail -f /dev/null
+      "
+
+    working_dir: /workspace

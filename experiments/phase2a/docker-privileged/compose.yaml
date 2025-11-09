@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  default:
+    image: ubuntu:22.04
+
+    # INTENTIONAL MISCONFIGURATION: Privileged mode
+    privileged: true  # ⚠️ MISCONFIG!
+
+    # Install tools for device/disk operations
+    command: >
+      bash -c "
+        apt-get update -qq &&
+        apt-get install -y -qq util-linux fdisk procps &&
+        tail -f /dev/null
+      "
+
+    working_dir: /workspace

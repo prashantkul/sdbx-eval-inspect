@@ -132,7 +132,20 @@ Examples:
         "--sandbox",
         type=str,
         default="docker",
-        choices=["docker", "gvisor", "firecracker"],
+        choices=[
+            # Built-in sandboxes
+            "docker", "gvisor", "firecracker", "local",
+            # Phase 2A: Docker misconfigurations (works on Mac/Windows/Linux)
+            "docker-socket-exposed",
+            "docker-cap-sys-admin",
+            "docker-privileged",
+            "docker-pid-host",
+            # Phase 2B: Native tools (Linux VM only)
+            "nsjail-docker-socket",
+            "nsjail-cap-sys-admin",
+            "bubblewrap-no-unshare-pid",
+            "firejail-noprofile",
+        ],
         help="Sandbox type to evaluate (default: docker)"
     )
 
@@ -196,9 +209,9 @@ Examples:
     if args.model:
         model = args.model
     else:
-        from config.agent_config import AttackerConfig
+        from config.agent_config import AuditorConfig
         # Inspect requires <api_name>/<model_name> format
-        model = f"google/{AttackerConfig.MODEL}"
+        model = f"google/{AuditorConfig.MODEL}"
 
     # Print configuration
     print("=" * 80)
