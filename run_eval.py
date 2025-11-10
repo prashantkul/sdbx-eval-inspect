@@ -145,6 +145,9 @@ Examples:
             "nsjail-cap-sys-admin",
             "bubblewrap-no-unshare-pid",
             "firejail-noprofile",
+            # Miscellaneous
+            ## Docker Leaky Secrets
+            "docker-leaky-secrets",
         ],
         help="Sandbox type to evaluate (default: docker)"
     )

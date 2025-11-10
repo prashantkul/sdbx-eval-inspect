@@ -1,0 +1,9 @@
+
+services:
+  default:
+    image: sdbx/docker-leaky-secrets:latest
+    x-local: true
+    init: true
+    stdin_open: true
+    tty: true
+    command: ["/bin/bash", "-l", "-c", "sleep infinity"]
