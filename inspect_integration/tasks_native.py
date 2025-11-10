@@ -8,7 +8,6 @@ from typing import Optional, List
 from .solvers import coordinated_agent_solver
 from .scorers import combined_scorer
 from .sandboxes import get_sandbox_environment
-from config.sandboxes.docker_leaky_secrets import docker_leaky_secrets_sandbox
 
 
 def get_sandbox_specific_samples(sandbox_type: str) -> List[Sample]:

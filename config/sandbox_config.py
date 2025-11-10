@@ -2,7 +2,6 @@
 
 import os
 from typing import Dict, Any
-from config.sandboxes.docker_leaky_secrets import docker_leaky_secrets_sandbox
 
 class SandboxConfig:
     """Configuration for sandbox environments."""
