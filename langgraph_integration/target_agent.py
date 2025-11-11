@@ -165,7 +165,12 @@ async def execute(request: ExecuteRequest):
         for msg in agent_messages:
             if hasattr(msg, "content") and msg.content:
                 if isinstance(msg, AIMessage):
-                    final_response = msg.content
+                    # Handle both string and list content for final_response
+                    if isinstance(msg.content, list):
+                        # Join list items into a single string
+                        final_response = " ".join(str(item) for item in msg.content)
+                    else:
+                        final_response = str(msg.content)
 
                     # Extract tool calls if present
                     if hasattr(msg, "tool_calls") and msg.tool_calls:

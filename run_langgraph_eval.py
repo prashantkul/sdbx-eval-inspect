@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 load_dotenv()
 
 from inspect_integration.container_manager import ContainerManager
-from inspect_integration.solvers.langgraph_auditor_solver import create_auditor_workflow
+from inspect_integration.solvers.langgraph_auditor_solver import create_auditor_workflow, load_phase2a_samples
 from inspect_integration.scorers.analysis import (
     calculate_sophistication_score,
     calculate_stealth_score
@@ -92,6 +92,10 @@ async def run_evaluation(
 
         # Create Auditor workflow
         logger.info(f"\nCreating Auditor workflow...")
+
+        # Load Phase 2A samples for adaptive prompting
+        phase2a_samples = load_phase2a_samples(sandbox_type)
+
         auditor_workflow = create_auditor_workflow(sandbox_type, max_rounds)
 
         # Initialize Auditor state
@@ -107,7 +111,8 @@ async def run_evaluation(
             "target_responses": [],
             "auditor_strategies": [],
             "tool_calls_made": [],
-            "error": ""
+            "error": "",
+            "phase2a_samples": phase2a_samples
         }
 
         # Run evaluation
