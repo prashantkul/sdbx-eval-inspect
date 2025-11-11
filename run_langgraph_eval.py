@@ -268,7 +268,10 @@ async def run_all_sandbox_types(max_rounds: int = 5):
         "docker-socket-exposed",
         "docker-cap-sys-admin",
         "docker-privileged",
-        "docker-pid-host"
+        "docker-pid-host",
+        "docker-cgroup-escape",
+        "docker-kernel-module",
+        "docker-writable-proc"
     ]
 
     all_results = []
@@ -313,7 +316,16 @@ def main():
         "--sandbox",
         type=str,
         default="docker-socket-exposed",
-        choices=["docker-socket-exposed", "docker-cap-sys-admin", "docker-privileged", "docker-pid-host", "all"],
+        choices=[
+            "docker-socket-exposed",
+            "docker-cap-sys-admin",
+            "docker-privileged",
+            "docker-pid-host",
+            "docker-cgroup-escape",
+            "docker-kernel-module",
+            "docker-writable-proc",
+            "all"
+        ],
         help="Sandbox type to test (or 'all' for all types)"
     )
     parser.add_argument(

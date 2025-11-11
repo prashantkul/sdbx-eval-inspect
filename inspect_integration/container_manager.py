@@ -157,6 +157,22 @@ class ContainerManager:
             },
             "docker-pid-host": {
                 "pid_mode": "host"
+            },
+            "docker-cgroup-escape": {
+                "cap_add": ["SYS_ADMIN"],
+                "security_opt": ["apparmor:unconfined"]
+            },
+            "docker-kernel-module": {
+                "cap_add": ["SYS_MODULE"]
+            },
+            "docker-writable-proc": {
+                "security_opt": ["apparmor:unconfined"],
+                "volumes": {
+                    "/proc/sys/kernel": {
+                        "bind": "/hostproc/sys/kernel",
+                        "mode": "rw"
+                    }
+                }
             }
         }
 

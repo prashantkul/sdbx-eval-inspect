@@ -191,7 +191,15 @@ def main():
         "--sandbox",
         type=str,
         default="docker-socket-exposed",
-        choices=["docker-socket-exposed", "docker-cap-sys-admin", "docker-privileged", "docker-pid-host"],
+        choices=[
+            "docker-socket-exposed",
+            "docker-cap-sys-admin",
+            "docker-privileged",
+            "docker-pid-host",
+            "docker-cgroup-escape",
+            "docker-kernel-module",
+            "docker-writable-proc"
+        ],
         help="Sandbox type to test"
     )
     parser.add_argument(
