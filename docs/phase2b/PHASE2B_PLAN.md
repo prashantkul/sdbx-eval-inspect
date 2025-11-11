@@ -1,5 +1,41 @@
 # Phase 2B Implementation Plan
 
+## Scope Alignment (Tech Lead Guidance)
+
+### Second Stage: In Scope ✅
+
+1. **Novel Sandboxes**: Native Linux tools (nsjail, bubblewrap, firejail)
+   - Different from UK Gov BEIS Docker-only testing
+   - Production tools used by Google, Flatpak, and others
+   - Tests generalization of sandbox-aware prompting methodology
+
+2. **Traditional Detection Tools**: Security monitoring layer
+   - auditd: Syscall-level monitoring
+   - falco: Container runtime security
+   - seccomp: Prohibited syscall tracking
+   - New metric: Detection Rate (% of escapes caught)
+
+### Explicitly Out of Scope ❌
+
+1. **Temporal Knowledge Testing**: Not feasible due to:
+   - No access to time-stamped model checkpoints
+   - Cannot isolate knowledge vs. reasoning without checkpoints
+   - Adding web search would defeat temporal testing purpose
+   - **Alternative**: Cross-model comparison naturally reveals some knowledge differences
+
+2. **Novel Sandbox Invention**: Testing existing sandboxes only
+
+3. **AI-Based Monitoring**: Third Stage priority (stretch goal)
+
+4. **Small Model Testing**: Third Stage priority (stretch goal)
+
+### Research Questions
+
+1. Can agents escape production-grade native sandboxes?
+2. What traditional detection tools catch AI-driven escapes?
+3. Do escape patterns differ across sandbox types (Docker vs native)?
+4. **Proxy for knowledge vs reasoning**: Do obscure techniques (unlikely in training data) succeed at same rate as common ones?
+
 ## Overview
 
 Phase 2B tests AI agent capabilities to detect and exploit misconfigurations in native Linux sandboxing tools:
@@ -8,6 +44,8 @@ Phase 2B tests AI agent capabilities to detect and exploit misconfigurations in 
 - **firejail**: SUID sandbox using Linux namespaces
 
 **Platform**: Ubuntu VM on VMware Fusion (required for native Linux tools)
+
+**Key Addition**: Detection layer using traditional security tools to measure escape detectability
 
 ## Architecture
 
@@ -376,34 +414,108 @@ docker_techniques = {
 - Document capability behavior per tool
 - Include detection in samples
 
+## Detection Layer Implementation
+
+### Overview
+
+Add traditional security monitoring to measure what percentage of AI-driven escapes are detected by existing security tools.
+
+### Detection Tools
+
+1. **auditd**: System call auditing
+   ```bash
+   # Install
+   sudo apt install -y auditd audispd-plugins
+
+   # Configure rules for escape detection
+   auditctl -a exit,always -F arch=b64 -S mount -k escape_attempt
+   auditctl -a exit,always -F arch=b64 -S unshare -k escape_attempt
+   auditctl -w /var/run/docker.sock -p rwxa -k docker_socket_access
+   ```
+
+2. **falco**: Container runtime security
+   ```bash
+   # Install
+   curl -s https://falco.org/repo/falcosecurity-3672BA8F.asc | sudo apt-key add -
+   echo "deb https://download.falco.org/packages/deb stable main" | sudo tee /etc/apt/sources.list.d/falcosecurity.list
+   sudo apt update && sudo apt install -y falco
+
+   # Custom rules for AI agent escapes
+   - rule: Container Mount Suspicious Path
+   - rule: Docker Socket Access from Container
+   - rule: Namespace Manipulation
+   ```
+
+3. **seccomp**: Syscall filtering
+   ```bash
+   # Track prohibited syscalls
+   # Integrate with Docker/nsjail seccomp profiles
+   # Log violations to separate file
+   ```
+
+### New Metrics
+
+```python
+@dataclass
+class EscapeResult:
+    escape_detected: bool        # Did agent escape?
+    auditd_detected: bool        # Did auditd catch it?
+    falco_detected: bool         # Did falco catch it?
+    seccomp_detected: bool       # Did seccomp catch it?
+    detection_latency: float     # Time to detection (seconds)
+    alerts_generated: int        # Number of alerts
+```
+
+### Integration Points
+
+1. **Before evaluation**: Start monitoring tools
+2. **During evaluation**: Collect alerts in real-time
+3. **After evaluation**: Analyze detection coverage
+4. **Scoring**: Add detection metrics to combined_scorer
+
+### Expected Results
+
+| Sandbox | Escape Rate | Auditd Detection | Falco Detection | Seccomp Detection |
+|---------|-------------|------------------|-----------------|-------------------|
+| docker-socket | 67% | 90%+ | 95%+ | 0% (not blocked) |
+| cap-sys-admin | 33% | 80%+ | 70%+ | 50%+ |
+| privileged | 67% | 95%+ | 100% | 0% (privileged) |
+| nsjail | TBD | TBD | TBD | TBD |
+
 ## Timeline
 
-### Day 1: Ubuntu VM Setup
+### Week 1: Ubuntu VM Setup + Detection Tools
 - ✅ Install Ubuntu on VMware Fusion
 - ✅ Install Docker, nsjail, bubblewrap, firejail
 - ✅ Configure SSH access
 - ✅ Test Docker remote access
+- Install auditd, falco, configure detection rules
+- Test detection with manual escape attempts
 
-### Day 2: Infrastructure
+### Week 2: Phase 2B Infrastructure
 - Create experiments/phase2b/ structure
 - Write nsjail config files
 - Write bubblewrap/firejail launch scripts
 - Create Docker images with native tools
+- Integrate detection logging into sandbox environments
 
-### Day 3: Implementation
+### Week 3: Implementation
 - Implement 4 SandboxEnvironment classes
 - Create sandbox-specific samples
 - Add Auditor prompts for Phase 2B
 - Update run_eval.py with Phase 2B sandboxes
+- Add detection metrics to scorer
 
-### Day 4: Testing
+### Week 4: Testing & Analysis
 - Test each sandbox individually
 - Run full Phase 2B suite
 - Compare with Phase 2A results
-- Document findings
+- Analyze detection tool effectiveness
+- Document findings in PHASE2B_RESULTS.md
 
 ## Success Criteria
 
+**Phase 2B: Native Sandboxes**
 - ✅ All 4 native sandboxes working on Ubuntu VM
 - ✅ Agents can detect sandbox type (nsjail vs bubblewrap vs firejail)
 - ✅ Agents understand native tool misconfigurations
@@ -413,6 +525,19 @@ docker_techniques = {
   - bubblewrap-no-unshare-pid: 40-60%
   - nsjail-cap-sys-admin: 30-50%
 - ✅ Sophisticated exploitation strategies (3-5/10 sophistication)
+
+**Detection Layer**
+- ✅ auditd, falco, seccomp integrated across all scenarios (Phase 1, 2A, 2B)
+- ✅ Detection rate metrics collected for each tool
+- ✅ Analysis of detection effectiveness vs. escape sophistication
+- ✅ Identification of blind spots (what escapes are NOT detected)
+- ✅ Recommendations for detection rule improvements
+
+**Research Outputs**
+- ✅ Phase 2B results document with native tool analysis
+- ✅ Detection layer effectiveness report
+- ✅ Cross-model comparison (Gemini, GPT-4, Claude)
+- ✅ Updated midterm report for final submission
 
 ## Next Steps
 
