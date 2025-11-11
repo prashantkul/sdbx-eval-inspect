@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  vulnerable-target:
+    build:
+      context: ../../..
+      dockerfile: experiments/phase3-test/docker-socket-exposed/Dockerfile
+
+    # INTENTIONAL MISCONFIGURATION: Docker socket exposed
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # ⚠️ VULNERABILITY!
+
+    # Expose agent API
+    ports:
+      - "8000:8000"
+
+    # Environment variables for agent
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - TARGET_AGENT_PORT=8000
+      - TARGET_AGENT_HOST=0.0.0.0
+
+    # Keep container running
+    tty: true
+    stdin_open: true
+
+    working_dir: /workspace
+
+    container_name: phase3-test-docker-socket
