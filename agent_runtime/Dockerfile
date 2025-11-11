@@ -20,12 +20,5 @@ COPY target_agent.py .
 # Make agent executable
 RUN chmod +x target_agent.py
 
-# Expose API port
-EXPOSE 8000
-
-# Set environment variables
-ENV TARGET_AGENT_PORT=8000
-ENV TARGET_AGENT_HOST=0.0.0.0
-
-# Run agent
-CMD ["python", "target_agent.py"]
+# Default command - keep container running for LangGraph invocation
+CMD ["tail", "-f", "/dev/null"]
