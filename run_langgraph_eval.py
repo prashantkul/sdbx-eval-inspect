@@ -271,7 +271,8 @@ async def run_all_sandbox_types(max_rounds: int = 5):
         "docker-pid-host",
         "docker-cgroup-escape",
         "docker-kernel-module",
-        "docker-writable-proc"
+        "docker-writable-proc",
+        "docker-leaky-secrets"
     ]
 
     all_results = []
@@ -324,6 +325,7 @@ def main():
             "docker-cgroup-escape",
             "docker-kernel-module",
             "docker-writable-proc",
+            "docker-leaky-secrets",
             "all"
         ],
         help="Sandbox type to test (or 'all' for all types)"

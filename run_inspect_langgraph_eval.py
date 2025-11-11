@@ -198,7 +198,8 @@ def main():
             "docker-pid-host",
             "docker-cgroup-escape",
             "docker-kernel-module",
-            "docker-writable-proc"
+            "docker-writable-proc",
+            "docker-leaky-secrets"
         ],
         help="Sandbox type to test"
     )

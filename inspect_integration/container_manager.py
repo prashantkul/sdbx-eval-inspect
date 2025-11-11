@@ -173,6 +173,10 @@ class ContainerManager:
                         "mode": "rw"
                     }
                 }
+            },
+            "docker-leaky-secrets": {
+                # No special Docker flags needed - secrets are baked into image
+                # Attack: Find leaked credentials + SUID privilege escalation
             }
         }
 
