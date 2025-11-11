@@ -44,10 +44,9 @@ env/
 .env.*.local
 
 # Logs and results
-logs/
 *.log
 results/
-*.eval
+# Note: logs/ and *.eval are tracked for Inspect evaluation results
 
 # Jupyter Notebook
 .ipynb_checkpoints
