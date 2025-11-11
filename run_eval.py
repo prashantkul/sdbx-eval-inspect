@@ -140,13 +140,15 @@ Examples:
             "docker-cap-sys-admin",
             "docker-privileged",
             "docker-pid-host",
-            ## Docker Leaky Secrets
             "docker-leaky-secrets",
+            "docker-writable-proc",
+            "docker-kernel-module",
+            "docker-cgroup-escape",
             # Phase 2B: Native tools (Linux VM only)
             "nsjail-docker-socket",
             "nsjail-cap-sys-admin",
             "bubblewrap-no-unshare-pid",
-            "firejail-noprofile",            
+            "firejail-noprofile",
         ],
         help="Sandbox type to evaluate (default: docker)"
     )

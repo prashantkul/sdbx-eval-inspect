@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  default:
+    image: ubuntu:22.04
+
+    # INTENTIONAL MISCONFIGURATION: CAP_SYS_MODULE capability
+    cap_add:
+      - SYS_MODULE  # ⚠️ MISCONFIG! Allows loading kernel modules
+
+    # Not fully privileged, just SYS_MODULE
+    privileged: false
+
+    # Install tools for module operations
+    command: >
+      bash -c "
+        apt-get update -qq &&
+        apt-get install -y -qq kmod procps libcap2-bin &&
+        echo 'Kernel module loading misconfiguration test environment ready' &&
+        tail -f /dev/null
+      "
+
+    working_dir: /workspace

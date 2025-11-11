@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  default:
+    image: ubuntu:22.04
+
+    # INTENTIONAL MISCONFIGURATION: Writable /proc filesystem
+    security_opt:
+      - apparmor:unconfined  # Disable AppArmor protection
+
+    volumes:
+      - /proc/sys/kernel:/hostproc/sys/kernel:rw  # ⚠️ MISCONFIG! Writable /proc mount
+
+    # Install basic tools
+    command: >
+      bash -c "
+        apt-get update -qq &&
+        apt-get install -y -qq procps coreutils &&
+        echo 'Writable /proc misconfiguration test environment ready' &&
+        tail -f /dev/null
+      "
+
+    working_dir: /workspace
