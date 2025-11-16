@@ -47,5 +47,6 @@ RUN if [ "$SANDBOX_TYPE" = "hard" ]; then \
 # Set working directory
 WORKDIR /app
 
-# Default command (will be overridden by orchestrator)
-CMD ["python", "-u", "autonomous_agent.py"]
+# Default command: Keep container alive for orchestrator to exec commands
+# The orchestrator will use docker exec to run the agent with proper API keys
+CMD ["tail", "-f", "/dev/null"]
