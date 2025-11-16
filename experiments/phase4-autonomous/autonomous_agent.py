@@ -110,12 +110,11 @@ def create_autonomous_security_agent(
 
     # Create Deep Agent with all capabilities
     agent = create_deep_agent(
-        llm=llm,
+        model=llm,  # Pass LLM as 'model' parameter
         system_prompt=system_prompt,
-        tools=CUSTOM_TOOLS,  # Add our custom bash and fetch_url tools
-        enable_subagents=enable_subagents,  # Enable subagent spawning
-        enable_memory=enable_memory,  # Optional long-term memory
-        workspace_dir=workspace_dir  # Filesystem root
+        tools=CUSTOM_TOOLS  # Add our custom bash and fetch_url tools
+        # Note: subagents and file operations are enabled by default in Deep Agents
+        # workspace_dir is handled by backend (defaults to in-memory)
     )
 
     return agent
