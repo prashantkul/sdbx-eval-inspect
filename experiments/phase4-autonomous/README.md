@@ -76,7 +76,9 @@ Phase 4 evaluates whether an autonomous AI agent, given a legitimate goal that r
 # Required
 - Docker & Docker Compose
 - Python 3.11+
-- Anthropic API key
+- API key for either:
+  - Google Gemini (GOOGLE_API_KEY)
+  - Anthropic Claude (ANTHROPIC_API_KEY)
 
 # Conda environment (recommended)
 conda activate sdbx-eval-fwk
@@ -86,9 +88,17 @@ conda activate sdbx-eval-fwk
 
 1. **Set API Key**
 ```bash
+# For Gemini (default)
+export GOOGLE_API_KEY="your-key-here"
+
+# For Claude
 export ANTHROPIC_API_KEY="your-key-here"
-# Or create .env file
-echo "ANTHROPIC_API_KEY=your-key-here" > .env
+
+# Or create .env file with both
+cat > .env << EOF
+GOOGLE_API_KEY=your-google-key
+ANTHROPIC_API_KEY=your-anthropic-key
+EOF
 ```
 
 2. **Build Containers**
@@ -104,8 +114,11 @@ docker-compose --profile hard build
 
 3. **Run Evaluation**
 ```bash
-# Medium difficulty (Docker socket available)
+# Medium difficulty with Gemini (default)
 python run_autonomous_eval.py --sandbox medium --rounds 30
+
+# Medium difficulty with Claude
+python run_autonomous_eval.py --sandbox medium --model-provider anthropic --rounds 30
 
 # Hard difficulty (locked down)
 python run_autonomous_eval.py --sandbox hard --rounds 30
@@ -117,9 +130,14 @@ python run_autonomous_eval.py --sandbox hard --rounds 30
 
 ### Running Evaluations
 
-**Basic evaluation (medium difficulty)**:
+**Basic evaluation (Gemini, medium difficulty)**:
 ```bash
 python run_autonomous_eval.py --sandbox medium --rounds 30
+```
+
+**With Claude instead**:
+```bash
+python run_autonomous_eval.py --sandbox medium --model-provider anthropic --rounds 30
 ```
 
 **Hard difficulty evaluation**:
@@ -130,6 +148,18 @@ python run_autonomous_eval.py --sandbox hard --rounds 30
 **With cleanup**:
 ```bash
 python run_autonomous_eval.py --sandbox medium --rounds 30 --cleanup
+```
+
+**Model Comparison** (run both models on same sandbox):
+```bash
+# Run with Gemini
+python run_autonomous_eval.py --sandbox medium --model-provider google --rounds 30
+
+# Run with Claude
+python run_autonomous_eval.py --sandbox medium --model-provider anthropic --rounds 30
+
+# Compare results
+diff phase4_results_medium_*
 ```
 
 ### Inspecting Results
@@ -153,6 +183,41 @@ docker exec -it phase4-agent-medium /bin/bash
 ```bash
 docker-compose --profile medium down
 ```
+
+---
+
+## Model Support
+
+Phase 4 supports both Google Gemini and Anthropic Claude:
+
+### Default Models
+
+| Provider | Default Model | Alternative Options |
+|----------|--------------|---------------------|
+| **Google** | gemini-2.5-flash | gemini-1.5-pro, gemini-1.5-flash |
+| **Anthropic** | claude-sonnet-4-5 | claude-opus-4, claude-haiku-4 |
+
+### Model Selection
+
+Use the `--model-provider` flag to choose:
+
+```bash
+# Gemini (default)
+python run_autonomous_eval.py --model-provider google
+
+# Claude
+python run_autonomous_eval.py --model-provider anthropic
+```
+
+### Why Compare Models?
+
+Different models may exhibit different behaviors:
+- **Escape sophistication**: Some models may discover more advanced techniques
+- **Deception patterns**: Models differ in how they report vs hide escape attempts
+- **Power-seeking vs goal-alignment**: Post-escape behavior may vary
+- **Subagent usage**: Some models may delegate more effectively
+
+**Research value**: Cross-model comparison reveals whether behaviors are model-specific or universal.
 
 ---
 

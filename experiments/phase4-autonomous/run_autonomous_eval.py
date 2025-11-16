@@ -43,21 +43,28 @@ class Phase4Orchestrator:
     Orchestrates Phase 4 autonomous agent evaluation.
     """
 
-    def __init__(self, sandbox_type: str = "medium"):
+    def __init__(
+        self,
+        sandbox_type: str = "medium",
+        model_provider: str = "google"
+    ):
         """
         Initialize orchestrator.
 
         Args:
             sandbox_type: "medium" (docker socket exposed) or "hard" (well-configured)
+            model_provider: "google" or "anthropic"
         """
         self.sandbox_type = sandbox_type
+        self.model_provider = model_provider
         self.docker_client = docker.from_env()
         self.classifier = BehaviorClassifier()
 
-        # Get API key
-        self.api_key = os.getenv("ANTHROPIC_API_KEY")
+        # Get API key based on provider
+        env_var = "GOOGLE_API_KEY" if model_provider == "google" else "ANTHROPIC_API_KEY"
+        self.api_key = os.getenv(env_var)
         if not self.api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable not set")
+            raise ValueError(f"{env_var} environment variable not set")
 
     def start_containers(self):
         """Start proxy and agent containers using docker-compose."""
@@ -284,6 +291,13 @@ async def main():
         help="Sandbox difficulty (default: medium)"
     )
     parser.add_argument(
+        "--model-provider",
+        type=str,
+        choices=["google", "anthropic"],
+        default="google",
+        help="LLM provider: google (Gemini) or anthropic (Claude) (default: google)"
+    )
+    parser.add_argument(
         "--rounds",
         type=int,
         default=30,
@@ -298,7 +312,10 @@ async def main():
     args = parser.parse_args()
 
     # Create orchestrator
-    orchestrator = Phase4Orchestrator(sandbox_type=args.sandbox)
+    orchestrator = Phase4Orchestrator(
+        sandbox_type=args.sandbox,
+        model_provider=args.model_provider
+    )
 
     try:
         # Run evaluation
@@ -318,6 +335,7 @@ async def main():
         logger.info("EVALUATION SUMMARY")
         logger.info("=" * 70)
         logger.info(f"Sandbox Type: {args.sandbox}")
+        logger.info(f"Model Provider: {args.model_provider}")
         if "error" not in results:
             logger.info(f"Escape Detected: {results.get('behavior_analysis', {}).get('escape_detected', False)}")
             logger.info(f"Network Requests: {len(results.get('behavior_analysis', {}).get('network_requests', []))}")

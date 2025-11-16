@@ -7,9 +7,8 @@ file operations, subagent spawning, and long-term memory.
 """
 
 import os
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Literal
 from deepagents import create_deep_agent
-from langchain_anthropic import ChatAnthropic
 
 from custom_tools import CUSTOM_TOOLS
 from task_definitions import get_task
@@ -51,8 +50,9 @@ Begin by planning your approach using the write_todos tool to break down the pha
 
 
 def create_autonomous_security_agent(
+    model_provider: Literal["anthropic", "google"] = "google",
+    model: Optional[str] = None,
     api_key: Optional[str] = None,
-    model: str = "claude-sonnet-4-5",
     enable_subagents: bool = True,
     enable_memory: bool = False,  # Disable for now, enable if needed
     workspace_dir: str = "/workspace"
@@ -61,8 +61,9 @@ def create_autonomous_security_agent(
     Create an autonomous security audit agent using Deep Agents.
 
     Args:
-        api_key: Anthropic API key (defaults to ANTHROPIC_API_KEY env var)
-        model: Model to use (default: claude-sonnet-4-5)
+        model_provider: LLM provider - "anthropic" or "google" (default: google)
+        model: Model to use (defaults: gemini-2.5-flash for google, claude-sonnet-4-5 for anthropic)
+        api_key: API key (defaults to GOOGLE_API_KEY or ANTHROPIC_API_KEY env var)
         enable_subagents: Enable subagent spawning (default: True)
         enable_memory: Enable long-term memory (default: False)
         workspace_dir: Working directory for file operations
@@ -70,19 +71,36 @@ def create_autonomous_security_agent(
     Returns:
         Configured Deep Agent
     """
+    # Set default models based on provider
+    if model is None:
+        model = "gemini-2.5-flash" if model_provider == "google" else "claude-sonnet-4-5"
+
     # Get API key from environment if not provided
     if api_key is None:
-        api_key = os.getenv("ANTHROPIC_API_KEY")
+        env_var = "GOOGLE_API_KEY" if model_provider == "google" else "ANTHROPIC_API_KEY"
+        api_key = os.getenv(env_var)
         if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable not set")
+            raise ValueError(f"{env_var} environment variable not set")
 
-    # Create LLM
-    llm = ChatAnthropic(
-        model=model,
-        api_key=api_key,
-        temperature=0.7,  # Balance creativity and consistency
-        max_tokens=4096
-    )
+    # Create LLM based on provider
+    if model_provider == "google":
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        llm = ChatGoogleGenerativeAI(
+            model=model,
+            google_api_key=api_key,
+            temperature=0.7,
+            max_output_tokens=4096
+        )
+    elif model_provider == "anthropic":
+        from langchain_anthropic import ChatAnthropic
+        llm = ChatAnthropic(
+            model=model,
+            api_key=api_key,
+            temperature=0.7,
+            max_tokens=4096
+        )
+    else:
+        raise ValueError(f"Unsupported model provider: {model_provider}")
 
     # Get the security audit task
     task = get_task()
@@ -163,6 +181,8 @@ def run_agent_round(
 
 async def run_autonomous_evaluation(
     max_rounds: int = 30,
+    model_provider: Literal["anthropic", "google"] = "google",
+    model: Optional[str] = None,
     api_key: Optional[str] = None,
     workspace_dir: str = "/workspace"
 ) -> Dict[str, Any]:
@@ -171,7 +191,9 @@ async def run_autonomous_evaluation(
 
     Args:
         max_rounds: Maximum number of rounds
-        api_key: Anthropic API key
+        model_provider: LLM provider - "anthropic" or "google"
+        model: Model to use (optional, uses defaults)
+        api_key: API key (optional, uses env vars)
         workspace_dir: Working directory
 
     Returns:
@@ -179,6 +201,8 @@ async def run_autonomous_evaluation(
     """
     # Create agent
     agent = create_autonomous_security_agent(
+        model_provider=model_provider,
+        model=model,
         api_key=api_key,
         enable_subagents=True,  # Enable subagent spawning
         workspace_dir=workspace_dir
