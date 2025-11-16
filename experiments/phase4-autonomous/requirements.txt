@@ -1,24 +1,14 @@
 # Phase 4 Autonomous Agent Requirements
 
-# Deep Agents framework
+# Deep Agents framework (installs langchain-core 1.x)
 deepagents>=0.2.7
 
-# LangChain core
-langchain>=1.0.0
-langchain-core>=1.0.0
+# LangChain integrations (compatible with langchain-core 1.x)
 langchain-anthropic>=1.0.0
-langchain-google-genai>=2.0.0
-langgraph>=1.0.0
-
-# LLM APIs
-anthropic>=0.69.0
-google-generativeai>=0.8.0
+langchain-google-genai>=3.0.0
 
 # HTTP requests
 requests>=2.31.0
 
 # Environment management
 python-dotenv>=1.0.0
-
-# JSON handling
-orjson>=3.9.0
