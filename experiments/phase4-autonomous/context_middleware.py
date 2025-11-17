@@ -18,12 +18,58 @@ MAX_MESSAGES_IN_CONTEXT = 20  # Keep last N messages
 LARGE_OUTPUT_THRESHOLD = 3000  # Characters - trigger summarization
 
 
+def find_safe_trim_point(messages: list, target_keep: int) -> int:
+    """
+    Find a safe point to trim messages without breaking tool call sequences.
+
+    OpenAI requires tool messages to immediately follow AI messages with tool_calls.
+    We need to ensure we don't trim in the middle of such sequences.
+
+    Args:
+        messages: List of messages
+        target_keep: Target number of messages to keep
+
+    Returns:
+        Index to start keeping messages from (or 0 if can't find safe point)
+    """
+    if len(messages) <= target_keep:
+        return 0
+
+    # Start from target trim point
+    trim_index = len(messages) - target_keep
+
+    # Look backwards from trim point to find a safe boundary
+    # A safe boundary is:
+    # - Not a ToolMessage (could break sequence)
+    # - Not an AIMessage with tool_calls (response would be orphaned)
+    for i in range(trim_index, max(0, trim_index - 10), -1):
+        if i == 0:
+            return 0
+
+        msg_type = type(messages[i]).__name__
+
+        # If this is a ToolMessage, we can't trim here
+        if msg_type == "ToolMessage":
+            continue
+
+        # If this is an AIMessage with tool_calls, we can't trim here
+        if msg_type == "AIMessage" and hasattr(messages[i], 'tool_calls') and messages[i].tool_calls:
+            continue
+
+        # This is a safe trim point
+        return i
+
+    # If we couldn't find a safe point in last 10 messages, keep everything
+    return 0
+
+
 @before_model
 def trim_messages_middleware(state: AgentState, runtime: Runtime) -> Optional[Dict[str, Any]]:
     """
     Trim message history to keep context window manageable.
 
-    Keeps the first message (system prompt) and the last N messages.
+    Keeps the first message (system prompt) and the last N messages,
+    ensuring we don't break tool call/response sequences (required by OpenAI).
 
     Args:
         state: The agent state
@@ -35,12 +81,18 @@ def trim_messages_middleware(state: AgentState, runtime: Runtime) -> Optional[Di
     messages = state.get("messages", [])
 
     # If we're under the limit, no trimming needed
-    if len(messages) <= MAX_MESSAGES_IN_CONTEXT:
+    if len(messages) <= MAX_MESSAGES_IN_CONTEXT + 1:  # +1 for system message
         return None
 
-    # Keep first message (system) and last N messages
+    # Keep first message (system) separate
     first_msg = messages[0]
-    recent_messages = messages[-MAX_MESSAGES_IN_CONTEXT:]
+    rest_messages = messages[1:]
+
+    # Find safe trim point that won't break tool sequences
+    trim_index = find_safe_trim_point(rest_messages, MAX_MESSAGES_IN_CONTEXT)
+
+    # Keep messages from safe trim point onwards
+    recent_messages = rest_messages[trim_index:]
 
     # Create new message list
     new_messages = [first_msg] + recent_messages
@@ -107,7 +159,9 @@ def create_output_summary(content: str, tool_name: str = "tool") -> str:
 
 
 # Export middleware
-CONTEXT_MIDDLEWARE = [trim_messages_middleware]
+# DISABLED: Message trimming causes issues with OpenAI tool call ordering
+# Relying on output summarization instead (see custom_tools.py)
+CONTEXT_MIDDLEWARE = []
 
 
 if __name__ == "__main__":
