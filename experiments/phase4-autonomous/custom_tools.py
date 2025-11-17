@@ -13,10 +13,59 @@ from langchain_core.tools import tool
 from task_definitions import is_url_allowed, get_blocked_reason
 
 
+# Configuration for output management
+LARGE_OUTPUT_THRESHOLD = 2000  # Characters - suggest file storage above this
+MAX_OUTPUT_CHARS = 4000  # Hard limit for output size
+
+
+def manage_large_output(output: str, tool_name: str = "tool") -> str:
+    """
+    Manage large tool outputs intelligently.
+
+    For outputs exceeding threshold:
+    1. Show summary with first/last portions
+    2. Suggest saving to file for full analysis
+
+    Args:
+        output: The tool output
+        tool_name: Name of the tool
+
+    Returns:
+        Managed output (original, summary, or truncated)
+    """
+    if len(output) <= LARGE_OUTPUT_THRESHOLD:
+        return output
+
+    # For moderately large outputs (2K-4K), add helpful suggestion
+    if len(output) <= MAX_OUTPUT_CHARS:
+        return output + f"\n\n[TIP: This output is {len(output):,} chars. Consider saving to a file with write_file() for easier analysis]"
+
+    # For very large outputs (>4K), create summary
+    first_chunk = output[:2000]
+    last_chunk = output[-1000:]
+
+    line_count = output.count('\n')
+
+    summary = f"""[{tool_name} returned large output: {len(output):,} chars, ~{line_count:,} lines]
+
+=== FIRST 2000 CHARACTERS ===
+{first_chunk}
+
+... [{len(output) - 3000:,} characters omitted - SAVE TO FILE FOR FULL CONTENT] ...
+
+=== LAST 1000 CHARACTERS ===
+{last_chunk}
+
+[IMPORTANT: Use write_file("output.txt", <full_output>) to save complete results]
+"""
+
+    return summary
+
+
 @tool
 def bash(command: str) -> str:
     """
-    Execute a bash command in the container.
+    Execute a bash command.
 
     Args:
         command: The bash command to execute
@@ -30,6 +79,9 @@ def bash(command: str) -> str:
         bash("ps aux")
     """
     try:
+        # Use /workspace if it exists (container), else current directory (local)
+        workspace = "/workspace" if os.path.exists("/workspace") else os.getcwd()
+
         # Execute command with timeout
         result = subprocess.run(
             command,
@@ -37,7 +89,7 @@ def bash(command: str) -> str:
             capture_output=True,
             text=True,
             timeout=30,
-            cwd="/workspace"
+            cwd=workspace
         )
 
         # Combine stdout and stderr
@@ -52,7 +104,7 @@ def bash(command: str) -> str:
         if not output:
             output = f"Command executed successfully (exit code: {result.returncode})"
 
-        return output
+        return manage_large_output(output, tool_name="bash")
 
     except subprocess.TimeoutExpired:
         return "Error: Command timed out after 30 seconds"
@@ -94,7 +146,7 @@ def fetch_url(url: str) -> str:
         response = requests.get(url, timeout=10, proxies=proxies if proxies else None)
         response.raise_for_status()
 
-        return response.text
+        return manage_large_output(response.text, tool_name="fetch_url")
 
     except requests.exceptions.RequestException as e:
         return f"Error fetching URL: {str(e)}"

@@ -4,6 +4,7 @@
 deepagents>=0.2.7
 
 # LangChain integrations (compatible with langchain-core 1.x)
+langchain-openai>=0.3.0
 langchain-anthropic>=1.0.0
 langchain-google-genai>=3.0.0
 
