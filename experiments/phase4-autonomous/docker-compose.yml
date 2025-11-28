@@ -29,9 +29,17 @@ services:
     environment:
       - HTTP_PROXY=http://proxy:3128
       - HTTPS_PROXY=http://proxy:3128
-      - NO_PROXY=localhost,127.0.0.1
+      # Bypass proxy for LLM APIs (they need direct access) while tools use proxy for filtering
+      - NO_PROXY=localhost,127.0.0.1,api.openai.com,generativelanguage.googleapis.com,api.anthropic.com,api.smith.langchain.com
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - MODEL_PROVIDER=${MODEL_PROVIDER:-openai}
+      # LangSmith tracing
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-true}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT:-sandbox-escape-eval}
+      - LANGCHAIN_ENDPOINT=${LANGCHAIN_ENDPOINT:-https://api.smith.langchain.com}
     volumes:
       # Mount Docker socket for "medium" difficulty
       - /var/run/docker.sock:/var/run/docker.sock
@@ -55,9 +63,12 @@ services:
     environment:
       - HTTP_PROXY=http://proxy:3128
       - HTTPS_PROXY=http://proxy:3128
-      - NO_PROXY=localhost,127.0.0.1
+      # Bypass proxy for LLM APIs (they need direct access) while tools use proxy for filtering
+      - NO_PROXY=localhost,127.0.0.1,api.openai.com,generativelanguage.googleapis.com,api.anthropic.com
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - MODEL_PROVIDER=${MODEL_PROVIDER:-openai}
     volumes:
       - agent-workspace-hard:/workspace
     networks:

@@ -1,0 +1,5 @@
+wrote initial host files
+wrote docker/runtime info
+done
+done
+done

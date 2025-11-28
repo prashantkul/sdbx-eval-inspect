@@ -13,7 +13,6 @@ from deepagents.backends import FilesystemBackend
 
 from custom_tools import CUSTOM_TOOLS
 from task_definitions import get_task
-from context_middleware import get_context_middleware
 
 
 def setup_langsmith_tracing():
@@ -248,13 +247,24 @@ def create_autonomous_security_agent(
             raise ValueError(f"{env_var} environment variable not set")
 
     # Create LLM based on provider
+    # Note: We bypass proxy for LLM API calls by passing a custom http_client
+    # The proxy is only used for agent tools (fetch_url) to filter network access
     if model_provider == "openai":
         from langchain_openai import ChatOpenAI
+        import httpx
+        # Create httpx clients with proxy=None to explicitly bypass HTTP_PROXY/HTTPS_PROXY env vars
+        # Without proxy=None, httpx.Client() still reads proxy from environment!
+        # Need BOTH sync and async clients since Deep Agents uses async operations
+        http_client = httpx.Client(proxy=None)
+        async_http_client = httpx.AsyncClient(proxy=None)
         llm = ChatOpenAI(
             model=model,
             api_key=api_key,
             temperature=0.7,
-            max_tokens=4096
+            # Note: gpt-5-mini requires max_completion_tokens instead of max_tokens
+            # Omitting to use model's default max output
+            http_client=http_client,  # Bypass proxy for sync LLM API calls
+            http_async_client=async_http_client  # Bypass proxy for async LLM API calls
         )
     elif model_provider == "google":
         from langchain_google_genai import ChatGoogleGenerativeAI
@@ -266,11 +276,18 @@ def create_autonomous_security_agent(
         )
     elif model_provider == "anthropic":
         from langchain_anthropic import ChatAnthropic
+        import httpx
+        # Create httpx clients with proxy=None to explicitly bypass HTTP_PROXY/HTTPS_PROXY env vars
+        # Need BOTH sync and async clients since Deep Agents uses async operations
+        http_client = httpx.Client(proxy=None)
+        async_http_client = httpx.AsyncClient(proxy=None)
         llm = ChatAnthropic(
             model=model,
             api_key=api_key,
             temperature=0.7,
-            max_tokens=4096
+            max_tokens=4096,
+            http_client=http_client,  # Bypass proxy for sync LLM API calls
+            http_async_client=async_http_client  # Bypass proxy for async LLM API calls
         )
     else:
         raise ValueError(f"Unsupported model provider: {model_provider}")
@@ -279,7 +296,6 @@ def create_autonomous_security_agent(
     task = get_task()
 
     # Convert workspace_dir to absolute path for the prompt
-    import os.path
     abs_workspace = os.path.abspath(workspace_dir)
 
     # Format system prompt with task and workspace directory
@@ -293,15 +309,20 @@ def create_autonomous_security_agent(
     backend = FilesystemBackend(root_dir=workspace_dir)
 
     # Create Deep Agent with all capabilities
-    # Note: Deep Agents auto-includes TodoList, Filesystem, and SubAgent middleware
-    # Testing: Let Deep Agents handle context management (may have built-in)
+    # Note: Deep Agents auto-includes:
+    #   - TodoListMiddleware
+    #   - FilesystemMiddleware
+    #   - SubAgentMiddleware
+    #   - SummarizationMiddleware (170K tokens trigger, keeps 6 messages)
+    #   - AnthropicPromptCachingMiddleware
+    #   - PatchToolCallsMiddleware
     print(f"Creating Deep Agent with {model_provider} ({model})...", flush=True)
     agent = create_deep_agent(
         model=llm,  # Pass LLM as 'model' parameter
         system_prompt=system_prompt,
         tools=CUSTOM_TOOLS,  # Add our custom bash and fetch_url tools
         backend=backend  # Use filesystem backend instead of default in-memory
-        # middleware removed - Deep Agents may have built-in context management
+        # No custom middleware needed - Deep Agents includes SummarizationMiddleware
     )
 
     return agent
@@ -630,13 +651,24 @@ if __name__ == "__main__":
     print("=" * 70)
     print()
 
-    # Create test workspace
-    os.makedirs("/tmp/phase4-test-workspace", exist_ok=True)
+    # Get configuration from environment
+    model_provider = os.getenv("MODEL_PROVIDER", "openai")
+    max_rounds = int(os.getenv("MAX_ROUNDS", "10"))
+    workspace_dir = os.getenv("WORKSPACE_DIR", "/workspace")
+
+    # Create workspace if it doesn't exist
+    os.makedirs(workspace_dir, exist_ok=True)
+
+    print(f"Model provider: {model_provider}")
+    print(f"Max rounds: {max_rounds}")
+    print(f"Workspace: {workspace_dir}")
+    print()
 
     # Run evaluation
     results = asyncio.run(run_autonomous_evaluation(
-        max_rounds=5,  # Short test run
-        workspace_dir="/tmp/phase4-test-workspace"
+        max_rounds=max_rounds,
+        model_provider=model_provider,
+        workspace_dir=workspace_dir
     ))
 
     print("\n" + "=" * 70)
@@ -649,7 +681,8 @@ if __name__ == "__main__":
     print(f"Subagents spawned: {results['subagents_spawned']}")
 
     # Save results
-    with open("/tmp/phase4-test-results.json", "w") as f:
+    results_path = os.path.join(workspace_dir, "evaluation_results.json")
+    with open(results_path, "w") as f:
         json.dump(results, f, indent=2, default=str)
 
-    print(f"\n✓ Results saved to /tmp/phase4-test-results.json")
+    print(f"\n✓ Results saved to {results_path}")

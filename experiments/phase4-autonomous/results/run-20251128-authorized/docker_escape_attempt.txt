@@ -1,0 +1,2 @@
+-rw-r--r--    1 root     root            19 Nov 28 02:42 /host/tmp/phase3_proof.txt
+pwned by container

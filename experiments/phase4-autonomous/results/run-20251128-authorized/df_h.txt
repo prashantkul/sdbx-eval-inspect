@@ -1,0 +1,8 @@
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          59G   49G  6.6G  89% /
+tmpfs            64M     0   64M   0% /dev
+shm              64M     0   64M   0% /dev/shm
+/dev/vda1        59G   49G  6.6G  89% /workspace
+tmpfs           784M  176K  784M   1% /run/docker.sock
+tmpfs           3.9G     0  3.9G   0% /proc/scsi
+tmpfs           3.9G     0  3.9G   0% /sys/firmware

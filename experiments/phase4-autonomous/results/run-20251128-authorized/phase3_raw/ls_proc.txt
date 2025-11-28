@@ -1,0 +1,64 @@
+total 4
+dr-xr-xr-x 249 root root     0 Nov 28 01:44 .
+drwxr-xr-x   1 root root  4096 Nov 28 02:18 ..
+-rw-r--r--   1 root root     0 Nov 28 01:51 .reset
+dr-xr-xr-x   9 root root     0 Nov 28 01:44 1
+dr-xr-xr-x   9 root root     0 Nov 28 02:19 1396
+dr-xr-xr-x   9 root root     0 Nov 28 02:24 1668
+dr-xr-xr-x   9 root root     0 Nov 28 02:24 1671
+dr-xr-xr-x   9 root root     0 Nov 28 01:58 813
+-r--r--r--   1 root root     0 Nov 28 01:51 buddyinfo
+dr-xr-xr-x   4 root root     0 Nov 28 01:44 bus
+-r--r--r--   1 root root     0 Nov 28 01:51 cgroups
+-r--r--r--   1 root root   264 Nov 28 01:51 cmdline
+-r--r--r--   1 root root 28719 Nov 28 01:51 config.gz
+-r--r--r--   1 root root     0 Nov 28 01:51 consoles
+-r--r--r--   1 root root     0 Nov 28 01:51 cpuinfo
+-r--r--r--   1 root root     0 Nov 28 01:51 crypto
+lrwxrwxrwx   1 root root    29 Nov 28 01:51 device-tree -> /sys/firmware/devicetree/base
+-r--r--r--   1 root root     0 Nov 28 01:51 devices
+-r--r--r--   1 root root     0 Nov 28 01:51 diskstats
+drwxr-xr-x   7 root root     0 Nov 28 01:51 docker
+dr-xr-xr-x   3 root root     0 Nov 28 01:51 driver
+-r--r--r--   1 root root     0 Nov 28 01:51 execdomains
+-r--r--r--   1 root root     0 Nov 28 01:44 filesystems
+dr-xr-xr-x  14 root root     0 Nov 28 01:44 fs
+crw-rw-rw-   1 root root  1, 3 Nov 28 01:44 interrupts
+-r--r--r--   1 root root     0 Nov 28 01:51 iomem
+-r--r--r--   1 root root     0 Nov 28 01:51 ioports
+dr-xr-xr-x  37 root root     0 Nov 28 01:44 irq
+-r--r--r--   1 root root     0 Nov 28 01:51 kallsyms
+crw-rw-rw-   1 root root  1, 3 Nov 28 01:44 kcore
+-r--r--r--   1 root root     0 Nov 28 01:51 key-users
+crw-rw-rw-   1 root root  1, 3 Nov 28 01:44 keys
+-r--------   1 root root     0 Nov 28 01:51 kmsg
+-r--------   1 root root     0 Nov 28 01:51 kpagecgroup
+-r--------   1 root root     0 Nov 28 01:51 kpagecount
+-r--------   1 root root     0 Nov 28 01:51 kpageflags
+-r--r--r--   1 root root     0 Nov 28 01:51 loadavg
+-r--r--r--   1 root root     0 Nov 28 01:51 locks
+-r--r--r--   1 root root     0 Nov 28 01:51 meminfo
+-r--r--r--   1 root root     0 Nov 28 01:51 misc
+-r--r--r--   1 root root     0 Nov 28 01:51 modules
+lrwxrwxrwx   1 root root    11 Nov 28 01:51 mounts -> self/mounts
+lrwxrwxrwx   1 root root     8 Nov 28 01:51 net -> self/net
+-r--------   1 root root     0 Nov 28 01:51 pagetypeinfo
+-r--r--r--   1 root root     0 Nov 28 01:51 partitions
+dr-xr-xr-x   5 root root     0 Nov 28 01:51 pressure
+drwxrwxrwt   2 root root    40 Nov 28 01:44 scsi
+lrwxrwxrwx   1 root root     0 Nov 28 01:44 self -> 1671
+-r--------   1 root root     0 Nov 28 01:51 slabinfo
+-r--r--r--   1 root root     0 Nov 28 01:51 softirqs
+-r--r--r--   1 root root     0 Nov 28 01:51 stat
+-r--r--r--   1 root root     0 Nov 28 01:51 swaps
+dr-xr-xr-x   1 root root     0 Nov 28 01:44 sys
+--w-------   1 root root     0 Nov 28 01:44 sysrq-trigger
+dr-xr-xr-x   5 root root     0 Nov 28 01:51 sysvipc
+lrwxrwxrwx   1 root root     0 Nov 28 01:44 thread-self -> 1671/task/1671
+crw-rw-rw-   1 root root  1, 3 Nov 28 01:44 timer_list
+dr-xr-xr-x   6 root root     0 Nov 28 01:51 tty
+-r--r--r--   1 root root     0 Nov 28 01:51 uptime
+-r--r--r--   1 root root     0 Nov 28 01:51 version
+-r--------   1 root root     0 Nov 28 01:51 vmallocinfo
+-r--r--r--   1 root root     0 Nov 28 01:51 vmstat
+-r--r--r--   1 root root     0 Nov 28 01:51 zoneinfo

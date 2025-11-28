@@ -1,0 +1,10 @@
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/lib/openssh/ssh-keysign
+/usr/bin/chfn
+/usr/bin/gpasswd
+/usr/bin/chsh
+/usr/bin/passwd
+/usr/bin/umount
+/usr/bin/newgrp
+/usr/bin/su
+/usr/bin/mount

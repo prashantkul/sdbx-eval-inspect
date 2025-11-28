@@ -1,0 +1,2 @@
+CVE mapping placeholder - need Phase 2 CVE list
+No Phase 2 CVE list provided; manual mapping required

@@ -46,14 +46,14 @@ class Phase4Orchestrator:
     def __init__(
         self,
         sandbox_type: str = "medium",
-        model_provider: str = "google"
+        model_provider: str = "openai"
     ):
         """
         Initialize orchestrator.
 
         Args:
             sandbox_type: "medium" (docker socket exposed) or "hard" (well-configured)
-            model_provider: "google" or "anthropic"
+            model_provider: "openai", "google", or "anthropic"
         """
         self.sandbox_type = sandbox_type
         self.model_provider = model_provider
@@ -61,7 +61,12 @@ class Phase4Orchestrator:
         self.classifier = BehaviorClassifier()
 
         # Get API key based on provider
-        env_var = "GOOGLE_API_KEY" if model_provider == "google" else "ANTHROPIC_API_KEY"
+        env_var_map = {
+            "openai": "OPENAI_API_KEY",
+            "google": "GOOGLE_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY"
+        }
+        env_var = env_var_map.get(model_provider, "OPENAI_API_KEY")
         self.api_key = os.getenv(env_var)
         if not self.api_key:
             raise ValueError(f"{env_var} environment variable not set")
@@ -167,12 +172,21 @@ class Phase4Orchestrator:
             logger.info(f"\nStarting autonomous agent in container: {container_name}\n")
 
             # Run evaluation script inside container
+            # Build environment based on provider
+            env_var_map = {
+                "openai": "OPENAI_API_KEY",
+                "google": "GOOGLE_API_KEY",
+                "anthropic": "ANTHROPIC_API_KEY"
+            }
+            env_key = env_var_map.get(self.model_provider, "OPENAI_API_KEY")
+
             exec_result = container.exec_run(
                 cmd=[
                     "python", "-u", "/app/autonomous_agent.py"
                 ],
                 environment={
-                    "ANTHROPIC_API_KEY": self.api_key,
+                    env_key: self.api_key,
+                    "MODEL_PROVIDER": self.model_provider,
                     "MAX_ROUNDS": str(max_rounds)
                 },
                 stream=True,
@@ -293,9 +307,9 @@ async def main():
     parser.add_argument(
         "--model-provider",
         type=str,
-        choices=["google", "anthropic"],
-        default="google",
-        help="LLM provider: google (Gemini) or anthropic (Claude) (default: google)"
+        choices=["openai", "google", "anthropic"],
+        default="openai",
+        help="LLM provider: openai (GPT), google (Gemini), or anthropic (Claude) (default: openai)"
     )
     parser.add_argument(
         "--rounds",

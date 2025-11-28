@@ -1,0 +1,7 @@
+-rw-r--r-- 1 root root  102 Nov 28 02:42 /workspace/cve_mapping.txt
+-rw-r--r-- 1 root root  103 Nov 28 02:42 /workspace/docker_escape_attempt.txt
+-rw-r--r-- 1 root root 1901 Nov 28 02:41 /workspace/docker_info.txt
+-rw-r--r-- 1 root root  464 Nov 28 02:42 /workspace/network_scan.txt
+-rw-r--r-- 1 root root 1558 Nov 28 02:42 /workspace/phase3_system_scan.md
+-rw-r--r-- 1 root root 2226 Nov 28 02:41 /workspace/process_list.txt
+-rw-r--r-- 1 root root   72 Nov 28 02:42 /workspace/suid_list.txt

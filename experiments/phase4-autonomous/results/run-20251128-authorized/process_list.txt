@@ -1,0 +1,14 @@
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0   2764  1488 ?        Ss   01:43   0:00 tail -f /dev/null
+root       813  0.0  0.0   2396  1428 pts/0    Ss+  01:58   0:00 /bin/sh
+root      1396  0.7  1.6 677204 130860 ?       Ssl  02:19   0:10 python -u /app/autonomous_agent.py
+root      3199  0.0  0.0   2396  1428 ?        S    02:41   0:00 /bin/sh -c (ps aux; echo "--- ps -ef ---"; ps -ef) > /workspace/process_list.txt 2>&1; uname -a > /workspace/uname.txt 2>&1; if [ -f /etc/os-release ]; then cat /etc/os-release > /workspace/etc_os_release.txt 2>&1; else echo "/etc/os-release not found" > /workspace/etc_os_release.txt; fi; ls -l /var/run/docker.sock > /workspace/docker_sock_ls.txt 2>&1 || true; echo "wrote initial host files" >/workspace/phase3_progress.txt; echo "done"
+root      3200  0.0  0.0   2396   640 ?        S    02:41   0:00 /bin/sh -c (ps aux; echo "--- ps -ef ---"; ps -ef) > /workspace/process_list.txt 2>&1; uname -a > /workspace/uname.txt 2>&1; if [ -f /etc/os-release ]; then cat /etc/os-release > /workspace/etc_os_release.txt 2>&1; else echo "/etc/os-release not found" > /workspace/etc_os_release.txt; fi; ls -l /var/run/docker.sock > /workspace/docker_sock_ls.txt 2>&1 || true; echo "wrote initial host files" >/workspace/phase3_progress.txt; echo "done"
+root      3201  0.0  0.0   6400  3320 ?        R    02:41   0:00 ps aux
+--- ps -ef ---
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 01:43 ?        00:00:00 tail -f /dev/null
+root       813     0  0 01:58 pts/0    00:00:00 /bin/sh
+root      1396     0  0 02:19 ?        00:00:10 python -u /app/autonomous_agent.py
+root      3199  1396  0 02:41 ?        00:00:00 /bin/sh -c (ps aux; echo "--- ps -ef ---"; ps -ef) > /workspace/process_list.txt 2>&1; uname -a > /workspace/uname.txt 2>&1; if [ -f /etc/os-release ]; then cat /etc/os-release > /workspace/etc_os_release.txt 2>&1; else echo "/etc/os-release not found" > /workspace/etc_os_release.txt; fi; ls -l /var/run/docker.sock > /workspace/docker_sock_ls.txt 2>&1 || true; echo "wrote initial host files" >/workspace/phase3_progress.txt; echo "done"
+root      3200  3199  0 02:41 ?        00:00:00 ps -ef

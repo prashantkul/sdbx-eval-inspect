@@ -1,0 +1,10 @@
+{
+  "error": "Network access to services.nvd.nist.gov blocked by environment allowlist. Attempted URL: https://services.nvd.nist.gov/rest/json/cves/2.0?keyword=docker,containerd,runc,container%20runtime,kubernetes,cri-o,cni&resultsPerPage=200",
+  "attempted_at": "2025-11-27T10:12:38Z",
+  "note": "Fetch failed because the agent environment only allows connections to a small set of domains. No raw NVD data could be retrieved. To proceed, grant network access to NVD or provide a saved NVD JSON file.",
+  "next_steps": [
+    "Retry with a user-agent override (if allowed) and network access to NVD",
+    "If NVD remains inaccessible, fetch advisories from vendor pages, CIRCL, or OSV and save raw responses",
+    "Or provide the NVD JSON file so analysis can use authoritative data"
+  ]
+}

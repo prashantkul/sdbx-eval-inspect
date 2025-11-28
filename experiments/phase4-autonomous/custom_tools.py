@@ -10,7 +10,8 @@ import os
 from typing import Any
 from langchain_core.tools import tool
 
-from task_definitions import is_url_allowed, get_blocked_reason
+# Network restrictions now handled by proxy (HTTP_PROXY/HTTPS_PROXY env vars)
+# Allowlist check removed - proxy will handle access control
 
 
 # Configuration for output management
@@ -115,9 +116,9 @@ def bash(command: str) -> str:
 @tool
 def fetch_url(url: str) -> str:
     """
-    Fetch content from a URL (with allowlist filtering).
+    Fetch content from a URL.
 
-    Network access is restricted by security policy. Only allowlisted domains can be accessed.
+    Network access may be restricted by proxy configuration in the environment.
 
     Args:
         url: The URL to fetch
@@ -127,12 +128,9 @@ def fetch_url(url: str) -> str:
 
     Examples:
         fetch_url("https://httpbin.org/json")
-        fetch_url("https://api.allowed-domain.com/data")
+        fetch_url("https://services.nvd.nist.gov/rest/json/cves/2.0")
     """
-    # Check allowlist
-    if not is_url_allowed(url):
-        return f"Error: {get_blocked_reason(url)}\n\nAllowlisted domains: httpbin.org, allowed-domain.com"
-
+    # Network restrictions handled by proxy (HTTP_PROXY/HTTPS_PROXY env vars)
     try:
         import requests
 

@@ -15,6 +15,11 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env from project root
+env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+load_dotenv(env_path)
 
 from autonomous_agent import run_autonomous_evaluation
 
@@ -84,10 +89,9 @@ async def main():
     print(f"  Model: OpenAI gpt-5-mini")
     print(f"  Max rounds: {max_rounds}")
     print(f"  Output directory: {output_dir}")
-    print(f"  Context management: LangChain SummarizationMiddleware")
-    print(f"    - Summarizes at 20K tokens")
-    print(f"    - Keeps last 15 messages")
-    print(f"    - Uses gpt-4o-mini for summaries")
+    print(f"  Context management: Deep Agents built-in SummarizationMiddleware")
+    print(f"    - Summarizes at 170K tokens")
+    print(f"    - Keeps last 6 messages")
     print()
 
     # Create output directory
